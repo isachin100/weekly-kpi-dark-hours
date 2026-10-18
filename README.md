@@ -101,6 +101,14 @@ Response excerpt:
 
 **How I used it:** I ran the check. With the filter removed, 3 of 12 tests failed (the two the AI predicted, plus `Fixture_GrandTotal`). With it restored, all 12 passed again. So the tests catch real regressions and aren't passing by accident.
 
+**Prompt refinement (lessons learned):** my prompts were informal. They worked because I checked every answer, but next time I'd state the deliverables, the business rules and the expected outputs explicitly. For example:
+
+*Planning:*
+> "Review the scenario below. It is a C# weekly KPI calculation with known defects. (1) List each defect in the starter code, with the fixture row that shows it and the operational impact. (2) Hand-calculate the correct scheduled, covered and dark hours for each location and the grand total, showing the interval arithmetic. (3) Propose a fix that follows all 7 business rules (half-open intervals, union, clip to window and to scheduled time, non-negative dark, minute precision). (4) Plan deliverables A–G to fit a 30-minute timebox. Don't write code until I approve the plan, and flag any assumptions you make."
+
+*Verification:*
+> "Give me step-by-step instructions for checking this solution on Windows: (1) the commands to run the xUnit tests and the T-SQL script on LocalDB, with the expected output for each; (2) a way to prove the tests aren't passing by accident: name one fix I can remove and the tests that should fail when I do."
+
 **AI suggestion accepted and verified:** merge the intervals into non-overlapping blocks, then intersect coverage with scheduled time, counting in whole minutes. I verified it by working out the expected numbers by hand first, then confirming them with the unit tests and with a separately written SQL query. All three give 32 / 19 / 13.
 
 **AI assumption that was wrong and corrected:**
