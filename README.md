@@ -83,17 +83,23 @@ Deploy the new calculation behind a config flag. Before switching, run old and n
 
 **Tool used:** Claude Code (CLI) with the Claude Opus 5.5 model, on Windows. It planned first (plan mode), and I approved the plan before it wrote any code. It then built the projects, code, tests and SQL, and ran them locally.
 
-**Prompt 1:**
+*Prompts are quoted verbatim from the session, unedited.*
+
+**Prompt 1 (planning, before any code was written):**
 > "I need to submit a screening test, Please review the mentioned sceniro and come up with a plan how to do it, what exactly client want." *(followed by the full scenario)*
 
 Response excerpt:
 > "Removed flag never filtered — Wichita shift 3 (8h) counted … Containment filter drops boundary-spanning intervals instead of clipping … Buggy output vs. correct: Wichita 32/14/18 (should be 20/13/7). Memphis 4/2/2 (should be 12/6/6)."
 
-**Prompt 2:**
+**How I used it:** I didn't take the defect list on trust. I worked out the correct numbers by hand first, then approved the plan. Later the `Legacy_ProducesWrongNumbers` test confirmed the AI's buggy-output figures exactly.
+
+**Prompt 2 (verification):**
 > "how to test the implementation locally?"
 
 Response excerpt:
-> "`dotnet test` … You should see `Passed! - Failed: 0, Passed: 12` … To show the tests aren't passing by accident, break the code on purpose … delete `!s.Removed && ` … `RemovedShift_ContributesNothing` and the Wichita fixture test should fail."
+> "`dotnet test` … To show the tests aren't passing by accident, break the code on purpose … delete `!s.Removed && ` … `RemovedShift_ContributesNothing` and the Wichita fixture test should fail."
+
+**How I used it:** I ran the check. With the filter removed, 3 of 12 tests failed (the two the AI predicted, plus `Fixture_GrandTotal`). With it restored, all 12 passed again. So the tests catch real regressions and aren't passing by accident.
 
 **AI suggestion accepted and verified:** merge the intervals into non-overlapping blocks, then intersect coverage with scheduled time, counting in whole minutes. I verified it by working out the expected numbers by hand first, then confirming them with the unit tests and with a separately written SQL query. All three give 32 / 19 / 13.
 
